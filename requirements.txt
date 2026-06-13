@@ -1,1 +1,9 @@
 All The material and stuffs required for Our PROjects
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+xgboost
+jupyter
+ipykernel
