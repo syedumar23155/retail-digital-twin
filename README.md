@@ -104,7 +104,7 @@ retail-digital-twin/
 | -------------------- | ------------- |
 | Member 01            | Syed Umar     |
 | Member 02            | Furqan Ahmed  |
-| Member 03            | Saleem Ahmed  |
+| Member 03            | Darzi Khaja Saleem Ahmed  |
 
 
 
