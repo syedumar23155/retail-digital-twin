@@ -5,7 +5,7 @@
 
 ---
 
-## 📖 Overview
+## 📖 Overview:-
 
 Retail Digital Twin is a virtual representation of a physical retail store that mirrors real-world operations in a digital environment. The system enables store managers and analysts to monitor inventory, simulate store layouts, analyze customer movement patterns, and make data-driven operational decisions.
 
