@@ -1,11 +1,3 @@
-"""
-Retail Digital Twin — Module 3
-Engagement Prediction Pipeline
-
-Predicts: is_buyer (will this customer make a purchase?)
-Architecture: Multi-model comparison with proper evaluation
-"""
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,15 +19,7 @@ import xgboost as xgb
 
 
 class EngagementPredictor:
-    """
-    Multi-model engagement prediction pipeline.
-    Predicts whether a customer will make a purchase (is_buyer).
-    Designed for class-imbalanced retail behavioral data.
-    """
-
-    # Features we use for prediction
-    # CRITICAL: We exclude is_buyer, is_high_value, clv_tier, roi_potential
-    # because they are derived FROM purchase behavior — data leakage
+   
     FEATURE_COLUMNS = [
         'total_views',
         'total_addtocarts',
@@ -59,8 +43,6 @@ class EngagementPredictor:
         self.feature_names = self.FEATURE_COLUMNS
         self.twins_df = None
 
-    # ── Data Loading & Validation ─────────────────────────────
-
     def load_data(self, path: str) -> pd.DataFrame:
         """Load Digital Twin profiles and validate."""
         df = pd.read_csv(path)
@@ -71,7 +53,6 @@ class EngagementPredictor:
         self.twins_df = df
         return df
 
-    # ── Feature Preparation ───────────────────────────────────
 
     def prepare_features(self, df: pd.DataFrame):
         """
@@ -81,7 +62,6 @@ class EngagementPredictor:
         """
         print("\n--- Feature Preparation ---")
 
-        # Check all feature columns exist
         missing = [c for c in self.FEATURE_COLUMNS if c not in df.columns]
         if missing:
             raise ValueError(f"Missing columns: {missing}")
@@ -89,21 +69,18 @@ class EngagementPredictor:
         X = df[self.FEATURE_COLUMNS].copy()
         y = df[self.TARGET_COLUMN].astype(int).copy()
 
-        # Handle any nulls
         X = X.fillna(0)
 
         print(f"Feature matrix shape: {X.shape}")
         print(f"Target distribution:\n{y.value_counts()}")
 
-        # Stratified split — preserves class ratio in train/test
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             X, y,
             test_size=0.2,
             random_state=42,
-            stratify=y      # Critical for imbalanced data
-        )
-
-        # Scale features (important for Logistic Regression)
+            stratify=y      
+         )
+    
         self.X_train_scaled = self.scaler.fit_transform(self.X_train)
         self.X_test_scaled = self.scaler.transform(self.X_test)
 
@@ -114,8 +91,7 @@ class EngagementPredictor:
 
         return self.X_train, self.X_test, self.y_train, self.y_test
 
-    # ── Class Imbalance Handling ──────────────────────────────
-
+   
     def _get_class_weights(self):
         """
         Compute balanced class weights.
@@ -130,8 +106,7 @@ class EngagementPredictor:
         )
         return {0: weights[0], 1: weights[1]}
 
-    # ── Model Training ────────────────────────────────────────
-
+   
     def train_all_models(self):
         """Train all 4 models with proper imbalance handling."""
 
@@ -151,7 +126,7 @@ class EngagementPredictor:
         self.models['Logistic Regression'] = ('scaled', lr)
         print("  ✓ Done")
 
-        # --- Model 2: Random Forest ---
+        
         print("Training Random Forest...")
         rf = RandomForestClassifier(
             n_estimators=100,
@@ -164,7 +139,6 @@ class EngagementPredictor:
         self.models['Random Forest'] = ('raw', rf)
         print("  ✓ Done")
 
-        # --- Model 3: XGBoost ---
         print("Training XGBoost...")
         scale_pos_weight = (self.y_train == 0).sum() / (self.y_train == 1).sum()
         xgb_model = xgb.XGBClassifier(
@@ -180,7 +154,6 @@ class EngagementPredictor:
         self.models['XGBoost'] = ('raw', xgb_model)
         print("  ✓ Done")
 
-        # --- Model 4: Gradient Boosting ---
         print("Training Gradient Boosting...")
         gb = GradientBoostingClassifier(
             n_estimators=100,
@@ -194,7 +167,6 @@ class EngagementPredictor:
 
         print(f"\n✅ All {len(self.models)} models trained")
 
-    # ── Evaluation ────────────────────────────────────────────
 
     def evaluate_all_models(self):
         """
@@ -232,7 +204,6 @@ class EngagementPredictor:
         self.results = results
         return results
 
-    # ── Confusion Matrices ────────────────────────────────────
 
     def plot_confusion_matrices(self, save_path='research/confusion_matrices.png'):
         """Visual confusion matrix for all models."""
@@ -261,8 +232,7 @@ class EngagementPredictor:
         plt.show()
         print(f"Saved to {save_path}")
 
-    # ── ROC Curves ───────────────────────────────────────────
-
+   
     def plot_roc_curves(self, save_path='research/roc_curves.png'):
         """ROC curves for all models on one plot."""
 
@@ -287,7 +257,7 @@ class EngagementPredictor:
         plt.show()
         print(f"Saved to {save_path}")
 
-    # ── Feature Importance ────────────────────────────────────
+    
 
     def plot_feature_importance(self, save_path='research/feature_importance.png'):
         """
@@ -311,16 +281,14 @@ class EngagementPredictor:
         plt.show()
         print(f"Saved to {save_path}")
 
-    # ── Model Comparison Table ────────────────────────────────
-
+   
     def get_comparison_table(self) -> pd.DataFrame:
         """Clean comparison table ranked by ROC-AUC."""
         df = pd.DataFrame(self.results).T
         df = df.sort_values('ROC-AUC', ascending=False)
         return df
 
-    # ── Predict on Full Dataset ───────────────────────────────
-
+   
     def predict_full_dataset(self, best_model_name: str) -> pd.DataFrame:
         """
         Apply best model to ALL 1.4M customers.
