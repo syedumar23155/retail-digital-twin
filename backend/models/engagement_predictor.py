@@ -23,14 +23,10 @@ class EngagementPredictor:
     FEATURE_COLUMNS = [
         'total_views',
         'total_addtocarts',
-        'total_events',
-        'engagement_score',
+        'total_events_clean',
+        'engagement_score_clean',
         'view_to_cart_rate',
         'cart_to_purchase_rate',
-        'view_to_purchase_rate',
-        'engagement_percentile',
-        'purchase_percentile',
-        'purchase_intent_score',
     ]
 
     TARGET_COLUMN = 'is_buyer'
