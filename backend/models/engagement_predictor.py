@@ -28,24 +28,11 @@ from sklearn.utils.class_weight import compute_class_weight
 import xgboost as xgb
 
 
-<<<<<<< HEAD
 class EngagementPredictorV2:
     """
     Version 2 — Leakage-free engagement prediction pipeline.
     Predicts is_buyer using only pre-purchase behavioral signals.
     """
-=======
-class EngagementPredictor:
-   
-    FEATURE_COLUMNS = [
-        'total_views',
-        'total_addtocarts',
-        'total_events_clean',
-        'engagement_score_clean',
-        'view_to_cart_rate',
-        'cart_to_purchase_rate',
-    ]
->>>>>>> eaac0e5f20f17312831ac6f381664ba301626fec
 
     TARGET_COLUMN = 'is_buyer'
 
@@ -436,7 +423,6 @@ class EngagementPredictor:
             model.predict_proba(X_input)[:, 1]
         ).round(4)
 
-<<<<<<< HEAD
         full_df.to_csv(save_path, index=False)
         print(f"Saved: {save_path}")
         print(f"Predicted buyers: {full_df['predicted_buyer'].sum():,}")
@@ -447,6 +433,3 @@ class EngagementPredictor:
     def get_comparison_table(self):
         df = pd.DataFrame(self.results).T
         return df.sort_values('ROC-AUC', ascending=False)
-=======
-        return self.twins_df
->>>>>>> eaac0e5f20f17312831ac6f381664ba301626fec
