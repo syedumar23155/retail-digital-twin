@@ -435,27 +435,23 @@ class HybridRecommender:
 
 class RecommendationEvaluator:
     """
-    Proper evaluation with temporal train/test split.
+    Temporal holdout evaluation with full diagnostics.
     
-    Why temporal split matters:
-    - Random split would let us train on future behavior
-    - Temporal split simulates real deployment:
-      "We built the recommender in August,
-       does it predict September purchases?"
+    Train period: May - August 2015
+    Test period:  September 2015 purchases
     
-    Metrics:
-    - Precision@K:  Of K recommendations, how many were bought?
-    - Recall@K:     Of all purchases, how many did we recommend?
-    - NDCG@K:       Are relevant items ranked higher in the list?
-    - Hit Rate@K:   Did at least 1 recommendation match a purchase?
-    - Coverage:     What % of catalog did we recommend overall?
+    Key insight for sparse retail data:
+    - Most customers buy very few items total
+    - September buyers often bought items they never viewed before
+    - HitRate@10 is more meaningful than Precision@10 here
+    - Coverage tells us how diverse our recommendations are
     """
 
     def __init__(self, k: int = 10):
         self.k = k
 
     def _precision(self, recommended: list, relevant: set) -> float:
-        if not recommended:
+        if not recommended or not relevant:
             return 0.0
         hits = sum(1 for item in recommended[:self.k] if item in relevant)
         return hits / self.k
@@ -479,63 +475,104 @@ class RecommendationEvaluator:
         return dcg / idcg if idcg > 0 else 0.0
 
     def _hit_rate(self, recommended: list, relevant: set) -> float:
-        return float(any(item in relevant for item in recommended[:self.k]))
+        return float(
+            any(item in relevant for item in recommended[:self.k])
+        )
 
-    def evaluate(self, recommender: HybridRecommender,
+    def evaluate(self, recommender: 'HybridRecommender',
                  full_events: pd.DataFrame) -> dict:
-        """
-        Temporal evaluation:
-        - Train data: events before September 2015
-        - Test data:  September 2015 purchase events
-        """
+
         print("\n=== TEMPORAL EVALUATION ===")
 
+        full_events = full_events.copy()
         full_events['datetime'] = pd.to_datetime(
             full_events['timestamp'], unit='ms'
         )
 
-        # Test period: September 2015 purchases
-        test_events = full_events[
+        # Temporal split
+        train_events = full_events[full_events['datetime'] < '2015-09-01']
+        test_events  = full_events[
             (full_events['datetime'] >= '2015-09-01') &
             (full_events['event'] == 'transaction')
         ]
 
-        print(f"Test period: Sep 2015 transactions")
-        print(f"Test events: {len(test_events):,}")
+        print(f"Train events (May-Aug): {len(train_events):,}")
+        print(f"Test transactions (Sep): {len(test_events):,}")
 
-        # Customers who purchased in September
-        test_customers = (
+        # Ground truth: September purchases per customer
+        ground_truth = (
             test_events.groupby('visitorid')['itemid']
-            .apply(set)
-            .to_dict()
+            .apply(set).to_dict()
         )
-        print(f"Test customers: {len(test_customers):,}")
 
-        # Evaluate
-        p_scores, r_scores, ndcg_scores, hit_scores = [], [], [], []
-        all_recommended_items = set()
+        # Pre-September interaction history
+        pre_sep_strong = train_events[
+            train_events['event'].isin(['addtocart', 'transaction'])
+        ]
+        pre_sep_history = (
+            pre_sep_strong.groupby('visitorid')['itemid']
+            .apply(set).to_dict()
+        )
 
-        for visitorid, relevant_items in test_customers.items():
+        # Diagnostics
+        has_history = sum(
+            1 for vid in ground_truth
+            if vid in pre_sep_history and len(pre_sep_history[vid]) >= 1
+        )
+        has_collab  = sum(
+            1 for vid in ground_truth
+            if vid in recommender.cooccurrence.user_items
+            and len(recommender.cooccurrence.user_items[vid]) >= 3
+        )
+
+        print(f"Sep customers total:           {len(ground_truth):,}")
+        print(f"With pre-Sep cart/buy history: {has_history:,}")
+        print(f"With collab signal (>=3 acts): {has_collab:,}")
+
+        # Evaluate all September customers
+        p_scores, r_scores = [], []
+        ndcg_scores, hit_scores = [], []
+        all_recommended = set()
+        hits_detail = []
+
+        for visitorid, relevant_items in ground_truth.items():
             result = recommender.recommend(visitorid, n=self.k)
             recommended = [r['itemid'] for r in result['recommendations']]
-            all_recommended_items.update(recommended)
+            all_recommended.update(recommended)
 
-            p_scores.append(self._precision(recommended, relevant_items))
-            r_scores.append(self._recall(recommended, relevant_items))
-            ndcg_scores.append(self._ndcg(recommended, relevant_items))
-            hit_scores.append(self._hit_rate(recommended, relevant_items))
+            hit = self._hit_rate(recommended, relevant_items)
+            p   = self._precision(recommended, relevant_items)
+            r   = self._recall(recommended, relevant_items)
+            n   = self._ndcg(recommended, relevant_items)
 
-        # Coverage
-        total_items = full_events['itemid'].nunique()
-        coverage = len(all_recommended_items) / total_items
+            p_scores.append(p)
+            r_scores.append(r)
+            ndcg_scores.append(n)
+            hit_scores.append(hit)
+
+            if hit > 0:
+                hits_detail.append({
+                    'visitorid': visitorid,
+                    'strategy': result['strategy'],
+                    'hit': True
+                })
+
+        total_hits = sum(hit_scores)
+        coverage   = len(all_recommended) / full_events['itemid'].nunique()
+
+        print(f"\nCustomers with at least 1 hit: {int(total_hits):,}")
+        print(f"Total unique items recommended: {len(all_recommended):,}")
 
         results = {
-            f'Precision@{self.k}':  round(np.mean(p_scores), 4),
-            f'Recall@{self.k}':     round(np.mean(r_scores), 4),
-            f'NDCG@{self.k}':       round(np.mean(ndcg_scores), 4),
-            f'HitRate@{self.k}':    round(np.mean(hit_scores), 4),
-            'Coverage':             round(coverage, 4),
-            'Customers Evaluated':  len(p_scores)
+            f'Precision@{self.k}':      round(np.mean(p_scores), 4),
+            f'Recall@{self.k}':         round(np.mean(r_scores), 4),
+            f'NDCG@{self.k}':           round(np.mean(ndcg_scores), 4),
+            f'HitRate@{self.k}':        round(np.mean(hit_scores), 4),
+            'Coverage':                 round(coverage, 4),
+            'Customers Evaluated':      len(p_scores),
+            'Customers w/ Pre-History': has_history,
+            'Customers w/ Collab Signal': has_collab,
+            'Total Hits':               int(total_hits)
         }
 
         return results
