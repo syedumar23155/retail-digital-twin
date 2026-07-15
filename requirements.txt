@@ -7,3 +7,5 @@ scikit-learn
 xgboost
 jupyter
 ipykernel
+streamlit
+plotly
