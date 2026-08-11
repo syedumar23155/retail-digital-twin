@@ -10,7 +10,9 @@ from flask_cors import CORS
 
 from backend.api.overview import overview_bp
 from backend.api.twin import twin_bp
-
+from backend.api.prediction import prediction_bp
+from backend.api.recommendations import recommendations_bp
+from backend.api.simulator import simulator_bp
 
 def create_app() -> Flask:
     """Create and configure the Flask application."""
@@ -35,6 +37,9 @@ def create_app() -> Flask:
     # Register API blueprints
     app.register_blueprint(overview_bp)
     app.register_blueprint(twin_bp)
+    app.register_blueprint(prediction_bp)
+    app.register_blueprint(recommendations_bp)
+    app.register_blueprint(simulator_bp)
 
     @app.route("/api/health")
     def health():
