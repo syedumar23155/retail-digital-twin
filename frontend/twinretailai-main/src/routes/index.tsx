@@ -92,7 +92,7 @@ function ExecutiveCommandCenter() {
       <PageHeader
         eyebrow="Executive Command Center"
         title="Retail Digital Twin intelligence, from real data."
-        description={`${kpis.totalCustomers.toLocaleString()} customer Digital Twins, generated from 2.75M real RetailRocket events (May\u2013Sep 2015) and scored by our XGBoost engagement model.`}
+        description={`${kpis.totalCustomers.toLocaleString()} customer Digital Twins, generated from 2.75M real RetailRocket events (May–Sep 2015) and scored by our XGBoost engagement model.`}
         actions={
           <>
             <Chip tone="emerald"><CircleDot className="w-3 h-3" /> Live</Chip>
@@ -108,7 +108,7 @@ function ExecutiveCommandCenter() {
         <StatCard label="High Value (CLV)" value={kpis.highValueCount.toLocaleString()} hint="HIGH + PREMIUM tier" icon={Crown} accent="amber" />
         <StatCard label="Predicted Buyers" value={kpis.predictedBuyers.toLocaleString()} hint="XGBoost model output" icon={Sparkles} accent="primary" />
         <StatCard label="Avg Buy Probability" value={`${kpis.avgBuyProbability}%`} hint="Mean across all customers" icon={TrendingUp} accent="violet" />
-        <StatCard label="Conversion Rate" value={`${kpis.conversionRate}%`} hint="Views \u2192 purchases" icon={Activity} accent="violet" />
+        <StatCard label="Conversion Rate" value={`${kpis.conversionRate}%`} hint="Views → purchases" icon={Activity} accent="violet" />
         <StatCard label="Avg Engagement Score" value={kpis.avgEngagementScore.toLocaleString()} hint="Weighted behavior score" icon={Flame} accent="amber" />
         <StatCard label="Model AUC" value="0.974" hint="XGBoost, held-out test set" icon={Sparkles} accent="emerald" />
       </div>
@@ -185,7 +185,10 @@ function ExecutiveCommandCenter() {
       {/* Row 2 */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
         <GlassCard className="p-6">
-          <SectionTitle title="Customer Funnel" subtitle="View \u2192 Cart \u2192 Purchase (real RetailRocket events, 3 real stages)" />
+          <SectionTitle
+            title="Customer Funnel"
+            subtitle="View → Cart → Purchase (real RetailRocket events, 3 real stages)"
+          />
           <div className="h-[280px]">
             <ResponsiveContainer>
               <FunnelChart>
@@ -249,7 +252,7 @@ function ExecutiveCommandCenter() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4">
         <GlassCard className="p-6 xl:col-span-2">
           <SectionTitle
-            title="Segment \u00d7 CLV Matrix"
+            title="Segment × CLV Matrix"
             subtitle="Customer count by behavioral segment and lifetime value tier (replaces fake revenue heatmap — RetailRocket has no price data)"
           />
           <div className="mt-2 overflow-x-auto">

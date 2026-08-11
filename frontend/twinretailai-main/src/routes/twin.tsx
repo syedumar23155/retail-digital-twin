@@ -26,7 +26,7 @@ import {
   PolarAngleAxis as PA,
 } from "recharts";
 import { GlassCard, PageHeader, SectionTitle, Chip } from "@/components/premium";
-import { tooltipStyle } from "./index";
+import { useTwin } from "@/hooks/use-twin";
 
 export const Route = createFileRoute("/twin")({
   component: TwinExplorer,
