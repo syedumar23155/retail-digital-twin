@@ -10,10 +10,9 @@ import {
   FlaskConical,
   Database,
   Award,
-  GitBranch,
+  Network,
   BookOpen,
   Brain,
-  Network,
   Lightbulb,
   Layers,
 } from "lucide-react";
@@ -37,103 +36,97 @@ export const Route = createFileRoute("/research")({
 const datasetStats = [
   {
     label: "Digital Twins",
-    value: "1,407,580",
+    value: "1.4M",
   },
   {
     label: "Features",
     value: "22",
   },
   {
-    label: "Behavior Segments",
+    label: "Segments",
     value: "5",
   },
   {
-    label: "Recommendation Records",
+    label: "Recommendations",
     value: "10K+",
   },
 ];
 
-const segmentDistribution = [
+const featureImportance = [
   {
-    name: "Passive Visitor",
-    value: 1325326,
+    name: "Cart Additions",
+    value: 90,
   },
   {
-    name: "Window Shopper",
-    value: 43389,
+    name: "Total Views",
+    value: 5,
   },
   {
-    name: "Engaged Browser",
-    value: 27146,
+    name: "Engagement",
+    value: 2,
   },
   {
-    name: "Buyer",
-    value: 11581,
+    name: "Events",
+    value: 1,
   },
   {
-    name: "Power Buyer",
-    value: 138,
+    name: "View→Cart",
+    value: 1,
+  },
+  {
+    name: "Percentile",
+    value: 1,
   },
 ];
 
-const benchmarkModels = [
+const models = [
   {
-    model: "RetailTwin-XGBoost",
-    accuracy: 0.982,
+    model: "RetailTwin XGBoost",
+    accuracy: 0.9824,
     auc: 0.974,
-    f1: 0.452,
-    champion: true,
+    f1: 0.4516,
+    best: true,
   },
   {
     model: "Gradient Boosting",
-    accuracy: 0.982,
-    auc: 0.972,
-    f1: 0.438,
+    accuracy: 0.9816,
+    auc: 0.9718,
+    f1: 0.4379,
+    best: false,
   },
   {
     model: "Random Forest",
-    accuracy: 0.981,
-    auc: 0.969,
-    f1: 0.422,
+    accuracy: 0.9807,
+    auc: 0.9685,
+    f1: 0.4224,
+    best: false,
   },
   {
     model: "Logistic Regression",
-    accuracy: 0.931,
-    auc: 0.912,
-    f1: 0.18,
+    accuracy: 0.9312,
+    auc: 0.9124,
+    f1: 0.1798,
+    best: false,
   },
 ];
 
-const explainableAI = [
-  "High engagement score",
-  "Strong view-to-cart conversion",
-  "Large interaction volume",
-  "High activity ratio",
-  "High-intent customer segment",
+const pipeline = [
+  "RetailRocket",
+  "Digital Twin",
+  "Segmentation",
+  "Prediction",
+  "Recommendation",
+  "Simulation",
+  "Dashboard",
 ];
 
 const contributions = [
-  "Digital Twin Generation",
-  "Customer Segmentation",
-  "XGBoost Purchase Prediction",
-  "Recommendation Intelligence",
-  "What-if Journey Simulation",
-  "Omnichannel Analytics Dashboard",
-];
-
-const findings = [
-  {
-    title: "Contribution",
-    value: "Generated 1.4 million behavioral digital twins.",
-  },
-  {
-    title: "Limitation",
-    value: "Anonymous RetailRocket item identifiers limit explainability.",
-  },
-  {
-    title: "Future Work",
-    value: "Transformer-based sequential recommendation models.",
-  },
+  "1.4M customer digital twins",
+  "Behavioral customer segmentation",
+  "Real-time engagement prediction",
+  "Cross-channel recommendation engine",
+  "Customer journey simulation",
+  "Omnichannel analytics dashboard",
 ];
 
 function ResearchObservatory() {
@@ -141,8 +134,8 @@ function ResearchObservatory() {
     <div className="max-w-[1600px] mx-auto px-6 md:px-10 py-8">
       <PageHeader
         eyebrow="Research Observatory"
-        title="AI Research, Experimentation & Explainability"
-        description="A complete research environment built on real RetailRocket customer behavior."
+        title="Retail Digital Twin Research Laboratory"
+        description="Reproducible AI research built on real RetailRocket customer behavior."
         actions={
           <Chip tone="primary">
             <FlaskConical className="w-3 h-3" />
@@ -151,12 +144,10 @@ function ResearchObservatory() {
         }
       />
 
-      {/* Dataset */}
-
       <GlassCard className="p-6 mt-8">
         <SectionTitle
           title="Dataset Observatory"
-          subtitle="Processed RetailRocket behavioral data"
+          subtitle="Real dataset statistics"
           right={<Database className="w-4 h-4" />}
         />
 
@@ -164,11 +155,13 @@ function ResearchObservatory() {
           {datasetStats.map((item) => (
             <div
               key={item.label}
-              className="rounded-xl glass p-5 text-center"
+              className="glass rounded-xl p-5 text-center"
             >
-              <div className="text-2xl font-bold">{item.value}</div>
+              <div className="text-3xl font-bold">
+                {item.value}
+              </div>
 
-              <div className="text-xs uppercase tracking-widest text-muted-foreground mt-2">
+              <div className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
                 {item.label}
               </div>
             </div>
@@ -176,28 +169,18 @@ function ResearchObservatory() {
         </div>
       </GlassCard>
 
-      {/* Pipeline */}
-
       <GlassCard className="p-6 mt-4">
         <SectionTitle
-          title="AI Pipeline Architecture"
-          subtitle="End-to-end digital twin generation"
+          title="Customer Behavior Digital Twin Architecture"
+          subtitle="End-to-end retail intelligence pipeline"
           right={<Network className="w-4 h-4" />}
         />
 
-        <div className="grid md:grid-cols-7 gap-3 text-center">
-          {[
-            "RetailRocket",
-            "Feature Engineering",
-            "Segmentation",
-            "XGBoost",
-            "Recommendations",
-            "Simulation",
-            "Analytics",
-          ].map((step) => (
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+          {pipeline.map((step) => (
             <div
               key={step}
-              className="glass rounded-xl p-4 text-sm font-medium"
+              className="glass rounded-xl p-4 text-center text-sm font-medium"
             >
               {step}
             </div>
@@ -205,19 +188,17 @@ function ResearchObservatory() {
         </div>
       </GlassCard>
 
-      {/* Feature importance */}
-
       <div className="grid xl:grid-cols-2 gap-4 mt-4">
         <GlassCard className="p-6">
           <SectionTitle
-            title="Feature Engineering"
-            subtitle="Behavioral importance analysis"
+            title="Feature Importance"
+            subtitle="Real XGBoost behavioral signals"
             right={<Layers className="w-4 h-4" />}
           />
 
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <BarChart data={features}>
+          <div className="h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={featureImportance}>
                 <CartesianGrid
                   stroke="rgba(255,255,255,0.05)"
                   vertical={false}
@@ -225,9 +206,9 @@ function ResearchObservatory() {
 
                 <XAxis
                   dataKey="name"
-                  fontSize={10}
                   tickLine={false}
                   axisLine={false}
+                  fontSize={10}
                 />
 
                 <YAxis
@@ -247,12 +228,10 @@ function ResearchObservatory() {
           </div>
         </GlassCard>
 
-        {/* Model leaderboard */}
-
         <GlassCard className="p-6">
           <SectionTitle
             title="Model Benchmark"
-            subtitle="Comparative evaluation"
+            subtitle="Module 3 evaluation results"
             right={
               <Chip tone="emerald">
                 <Award className="w-3 h-3" />
@@ -262,27 +241,29 @@ function ResearchObservatory() {
           />
 
           <div className="space-y-3">
-            {leaderboard.map((model) => (
+            {models.map((model) => (
               <div
                 key={model.model}
                 className="glass rounded-xl p-4"
               >
-                <div className="flex justify-between">
-                  <div className="font-medium">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">
                     {model.model}
                   </div>
 
                   {model.best && (
                     <Chip tone="emerald">
-                      Best
+                      #1
                     </Chip>
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+                <div className="grid grid-cols-3 gap-3 mt-4">
                   <Metric
                     label="Accuracy"
-                    value={model.accuracy.toFixed(3)}
+                    value={`${(
+                      model.accuracy * 100
+                    ).toFixed(2)}%`}
                   />
 
                   <Metric
@@ -291,7 +272,7 @@ function ResearchObservatory() {
                   />
 
                   <Metric
-                    label="F1"
+                    label="F1 Score"
                     value={model.f1.toFixed(3)}
                   />
                 </div>
@@ -301,66 +282,73 @@ function ResearchObservatory() {
         </GlassCard>
       </div>
 
-      {/* Explainability */}
-
       <div className="grid md:grid-cols-2 gap-4 mt-4">
         <GlassCard className="p-6">
           <SectionTitle
             title="Explainable AI"
-            subtitle="Why does the model predict a purchase?"
+            subtitle="Why does the model predict purchases?"
             right={<Brain className="w-4 h-4" />}
           />
 
-          <ul className="space-y-3 text-sm">
-            <li>✓ High engagement score</li>
-            <li>✓ Strong view-to-cart conversion</li>
-            <li>✓ Large interaction volume</li>
-            <li>✓ High activity ratio</li>
-            <li>✓ Customer belongs to a high-intent segment</li>
-          </ul>
+          <div className="space-y-3">
+            {[
+              "High engagement score",
+              "Strong view-to-cart conversion",
+              "Large interaction volume",
+              "High activity ratio",
+              "High-intent customer segment",
+            ].map((item) => (
+              <div
+                key={item}
+                className="glass rounded-xl p-3"
+              >
+                ✓ {item}
+              </div>
+            ))}
+          </div>
         </GlassCard>
 
         <GlassCard className="p-6">
           <SectionTitle
             title="Research Contributions"
-            subtitle="Project innovations"
+            subtitle="Project deliverables"
             right={<Lightbulb className="w-4 h-4" />}
           />
 
-          <ul className="space-y-3 text-sm">
-            <li>✓ Digital Twin Generation</li>
-            <li>✓ Customer Segmentation</li>
-            <li>✓ XGBoost Purchase Prediction</li>
-            <li>✓ Recommendation Intelligence</li>
-            <li>✓ What-if Journey Simulation</li>
-            <li>✓ Omnichannel Analytics Dashboard</li>
-          </ul>
+          <div className="space-y-3">
+            {contributions.map((item) => (
+              <div
+                key={item}
+                className="glass rounded-xl p-3"
+              >
+                ✓ {item}
+              </div>
+            ))}
+          </div>
         </GlassCard>
       </div>
-
-      {/* Limitations */}
 
       <GlassCard className="p-6 mt-4">
         <SectionTitle
           title="Research Findings"
-          subtitle="Limitations and future work"
+          subtitle="Contributions, limitations and future work"
           right={<BookOpen className="w-4 h-4" />}
         />
 
         <div className="grid md:grid-cols-3 gap-4">
           <Finding
             title="Contribution"
-            text="Generated 1.4 million behavioral digital twins from real-world retail interactions."
+            text="Generated 1.4 million behavioral digital twins from real-world customer interactions."
           />
 
           <Finding
             title="Limitation"
-            text="Anonymous RetailRocket item identifiers limit product-level explainability."
+            text="RetailRocket provides anonymous product identifiers, limiting product-level explainability."
           />
 
           <Finding
             title="Future Work"
-            text="Integrate transformer-based sequential recommendation models."
+            text="Integrate transformer-based sequential recommendation models and continual learning."
           />
         </div>
       </GlassCard>
@@ -376,12 +364,12 @@ function Metric({
   value: string;
 }) {
   return (
-    <div className="rounded-lg bg-white/[0.03] py-2">
+    <div className="rounded-lg bg-white/[0.03] p-3 text-center">
       <div className="text-xs text-muted-foreground">
         {label}
       </div>
 
-      <div className="font-mono font-bold">
+      <div className="font-mono font-bold mt-1">
         {value}
       </div>
     </div>
@@ -401,9 +389,11 @@ function Finding({
         {title}
       </div>
 
-      <div className="text-sm text-muted-foreground mt-2">
+      <div className="mt-2 text-sm text-muted-foreground">
         {text}
       </div>
     </div>
   );
 }
+
+export default ResearchObservatory;

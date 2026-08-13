@@ -1,5 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
+
+export interface SimulatorPayload {
+  views: number;
+  carts: number;
+  purchases: number;
+
+  storeVisits: number;
+  posPurchases: number;
+
+  emailInteractions: number;
+  couponRedemptions: number;
+}
 
 export interface SimulatorData {
   visitorId: string;
@@ -21,12 +33,6 @@ export interface SimulatorData {
     buyProbability: number;
     predictedBuyer: number;
     threshold: number;
-  };
-
-  scenario: {
-    views: number;
-    carts: number;
-    purchases: number;
   };
 
   delta: {
@@ -58,4 +64,14 @@ export function useSimulator(visitorId: number | null) {
 
     retry: false,
   });
+}
+
+export async function simulateJourney(
+  visitorId: number,
+  payload: SimulatorPayload
+) {
+  return apiPost(
+    `/api/simulator/${visitorId}`,
+    payload
+  );
 }
